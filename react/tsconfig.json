@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "declaration": true,
+        "lib": ["esnext", "DOM"],
+        "target": "es2017",
+        "jsx": "react",
+        "module": "commonjs",
+        "moduleResolution": "node"
+        // "noImplicitReturns": true,
+        // "noImplicitAny": true
+    },
+    "include": [
+        "src/**/*.tsx",
+        "src/**/*.ts",
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}
