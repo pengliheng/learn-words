@@ -34,9 +34,9 @@ services:
             NODE_ENV: "devemopment"
             BASE_URL: ""
         build:
-            context: "./frontend"
+            context: "./angular"
         volumes:
-            - ./frontend/:/root/frontend/
+            - ./angular/:/root/frontend/
         networks:
             - gate-tier
 

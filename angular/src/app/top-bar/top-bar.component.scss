@@ -1,0 +1,7 @@
+.right {
+  display: flex;
+  flex-direction: row;
+  a+a {
+    margin-left: 1em;
+  }
+}
