@@ -1,14 +1,24 @@
 <h2>product-list works!</h2>
-<div *ngFor="let product of products">
+<div *ngFor="let product of products; index as productId">
 
-    <h3>
-      <a [title]="product.name + ' details'">
-        {{ product.name }}
-      </a>
-    </h3>
+  <h3>
+    <a [title]="product.name + ' details'" [routerLink]="['/products', productId]">
+      {{ product.name }}
+    </a>
+  </h3>
   
-    <p *ngIf="product.description">
-      Description: {{ product.description }}
-    </p>
+  <p *ngIf="product.description">
+    Description: {{ product.description }}
+  </p>
+
+  <button (click)="share()">
+    Share
+  </button>
+    
+  <app-product-alerts
+    (notify)="onNotify()"
+    [product]="product"
+  >
+  </app-product-alerts>
   
 </div>

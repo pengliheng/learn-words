@@ -13,5 +13,10 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
+  share(): void {
+    console.log('share success');
+  }
+  onNotify() {
+    console.log('You will be notified when the product goes on sale');
+  }
 }

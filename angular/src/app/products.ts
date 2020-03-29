@@ -1,4 +1,10 @@
-export const products = [
+export interface ProductType {
+  name: string;
+  price: number;
+  description: string;
+}
+
+export const products: Array<ProductType> = [
     {
       name: 'Phone XL',
       price: 799,
