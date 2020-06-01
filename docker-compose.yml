@@ -28,15 +28,15 @@ services:
 
     frontend:
         restart: always
-        command: "npm run dev"
+        command: "npm run serve"
         environment: 
-            PORT: "8001"
+            PORT: "80"
             NODE_ENV: "devemopment"
             BASE_URL: ""
         build:
-            context: "./frontend"
+            context: "./vue"
         volumes:
-            - ./frontend/:/root/frontend/
+            - ./vue/:/root/frontend/
         networks:
             - gate-tier
 
@@ -50,8 +50,8 @@ services:
             - ./nginx/conf.d/:/etc/nginx/conf.d/
             - ./nginx:/var/log/nginx/
         ports:
-            - "8001:80"
-            - "8002:8080"
+            - "80:80"
+            - "8080:8080"
 
 networks:
     gate-tier:

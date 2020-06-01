@@ -139,18 +139,32 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		Value float64
 	}
 	json.NewDecoder(r.Body).Decode(&account)
-	errFind := accountsCollection.FindOne(
+	errFindNamePassword := accountsCollection.FindOne(
 		context.Background(),
 		bson.M{
 			"name":     account.Name,
 			"password": account.Password,
 		},
 	).Decode(&resultFind)
-	if errFind != nil {
-		json.NewEncoder(w).Encode(bson.M{
-			"message":   "account name or password not right",
-			"errorCode": 1,
-		})
+	if errFindNamePassword != nil {
+		errFindName := accountsCollection.FindOne(
+			context.Background(),
+			bson.M{
+				"name": account.Name,
+			},
+		).Decode(&resultFind)
+		if errFindName != nil {
+			// not register
+			json.NewEncoder(w).Encode(bson.M{
+				"message":   "account not exist",
+				"errorCode": 1,
+			})
+		} else {
+			json.NewEncoder(w).Encode(bson.M{
+				"message":   "password not right",
+				"errorCode": 2,
+			})
+		}
 		return
 	}
 	jwt := generateJWT(account.Name)
@@ -161,6 +175,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	// TODO: here to string it into redis
 	json.NewEncoder(w).Encode(bson.M{
 		"errorCode": 0,
+		"message":   "login success!",
 		"data": bson.M{
 			"name":  account.Name,
 			"token": jwt,
@@ -199,9 +214,10 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	})
 	json.NewEncoder(w).Encode(bson.M{
 		"errorCode": 0,
+		"message":   "account register success",
 		"data": bson.M{
-			"name":  account.Name,
-			"token": jwt,
+			"name":    account.Name,
+			"token":   jwt,
 		},
 	})
 }

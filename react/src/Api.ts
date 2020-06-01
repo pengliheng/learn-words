@@ -16,7 +16,7 @@ export default {
     },
     async SignUp(data: API.SignUp.Request):Promise<AxiosResponse<API.SignUp.Response>>{
         const res:AxiosResponse<API.SignIn.Response> = await axois({
-            url: '/api/login',
+            url: '/api/register',
             method: 'POST',
             data
         })
