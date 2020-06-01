@@ -1,0 +1,7 @@
+FROM node
+
+COPY . /root/frontend
+
+WORKDIR /root/frontend
+
+RUN yarn

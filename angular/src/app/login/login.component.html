@@ -1,0 +1,31 @@
+<mat-button-toggle-group value="login" #group="matButtonToggleGroup" name="loginOrRegister">
+  <mat-button-toggle value="login">Login</mat-button-toggle>
+  <mat-button-toggle value="register">Register</mat-button-toggle>
+</mat-button-toggle-group>
+
+<div class="login-container" *ngIf="group.value=='login'">
+  <mat-form-field appearance="fill">
+    <mat-label>UserName</mat-label>
+    <input matInput>
+  </mat-form-field>
+  <br>
+  <mat-form-field appearance="fill">
+    <mat-label>Password</mat-label>
+    <input matInput>
+  </mat-form-field>
+  <br>
+  <Button (click)="handleLogin()">Loign</Button>
+</div>
+<div class="login-container" *ngIf="group.value == 'register'">
+  <mat-form-field appearance="fill">
+    <mat-label>UserName</mat-label>
+    <input matInput>
+  </mat-form-field>
+  <br>
+  <mat-form-field appearance="fill">
+    <mat-label>Password</mat-label>
+    <input matInput>
+  </mat-form-field>
+  <br>
+  <Button (click)="handleRegister()">Register</Button>
+</div>
