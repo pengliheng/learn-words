@@ -50,7 +50,7 @@ services:
             - ./nginx/conf.d/:/etc/nginx/conf.d/
             - ./nginx:/var/log/nginx/
         ports:
-            - "80:80"
+            - "8001:80"
             - "8080:8080"
 
 networks:

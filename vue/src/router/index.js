@@ -9,14 +9,19 @@ const routes = [
         path: '/login',
         name: 'login',
         component: () => import('@/views/login')
-    },
-    {
-        path: '/register',
-        name: 'register',
-        component: () => import('@/views/register')
-    },
+    }
 ]
 
-export default new VueRouter({
+const router = new VueRouter({
     routes
 })
+
+router.beforeEach((to, from, next) => {
+    if (to.name !== 'Login') {
+        next({ name: 'Login' }) 
+    } else {
+        next()
+    }
+})
+
+export default router
