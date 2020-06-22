@@ -1,4 +1,4 @@
-# 背英语单词
+# enhance your vocabulary size.
 
 ## react
 
