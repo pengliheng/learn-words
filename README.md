@@ -1,13 +1,13 @@
-# 背英语单词
+# enhance your vocabulary size.
 
-## react
+## software architecture
 
-## ts
+- Vue-cli Element-UI
 
-## docker
+- MongoDB
 
-## MongoDB
+- Golang
 
-## go
+- Nginx
 
-## nginx
+- Docker-Compose
