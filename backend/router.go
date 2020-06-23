@@ -29,9 +29,9 @@ type Word struct {
 	UpdateAt time.Time
 }
 
-const cookieTokenName = "Admin-Token"
+const cookieTokenName = "Authorization"
 
-// 获取所有书
+// 获取所有单词
 func getWords(w http.ResponseWriter, r *http.Request) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancelFunc()
@@ -53,8 +53,9 @@ func getWords(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-// 创建书
+// 创建单词
 func createWord(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("123若32re")
 	var word Word
 	json.NewDecoder(r.Body).Decode(&word)
 	result, err := wordsCollection.InsertOne(
@@ -77,7 +78,7 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-// 更新书
+// 更新单词
 func updateWord(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r) // get params
 	var word Word
@@ -183,6 +184,23 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func handleLogout(w http.ResponseWriter, r *http.Request) {
+	// Read cookie
+	cookie, err := r.Cookie(cookieTokenName)
+	if err != nil {
+		fmt.Printf("Cant find cookie :/\r\n")
+		return
+	}
+	i := indexOf(tokenRedis, cookie.Value)
+	if i > -1 {
+		tokenRedis = append(tokenRedis[:i], tokenRedis[i+1:]...)
+	}
+	json.NewEncoder(w).Encode(bson.M{
+		"errorCode": 0,
+		"message":   "logout success!",
+	})
+}
+
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	var account Account
 	var resultFind struct {
@@ -216,8 +234,8 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		"errorCode": 0,
 		"message":   "account register success",
 		"data": bson.M{
-			"name":    account.Name,
-			"token":   jwt,
+			"name":  account.Name,
+			"token": jwt,
 		},
 	})
 }
@@ -243,6 +261,7 @@ func handleRoute() {
 	r.HandleFunc("/api/userInfo", handleGetUserInfo).Methods(http.MethodOptions, http.MethodGet)
 	r.HandleFunc("/api/register", handleRegister).Methods(http.MethodOptions, http.MethodPost)
 	r.HandleFunc("/api/login", handleLogin).Methods(http.MethodOptions, http.MethodPost)
+	r.HandleFunc("/api/logout", handleLogout).Methods(http.MethodOptions, http.MethodPost)
 	r.HandleFunc("/api/word", getWords).Methods(http.MethodGet)
 	r.HandleFunc("/api/word", createWord).Methods(http.MethodOptions, http.MethodPost)
 	r.HandleFunc("/api/word/{id}", updateWord).Methods(http.MethodPatch, http.MethodOptions)

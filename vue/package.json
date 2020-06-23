@@ -13,12 +13,15 @@
     "babel-preset-es2015": "^6.24.1",
     "core-js": "^3.6.5",
     "element-ui": "^2.13.2",
+    "js-cookie": "^2.2.1",
     "less": "^3.11.1",
     "less-loader": "^6.1.0",
+    "lodash": "^4.17.15",
     "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
     "vue": "^2.6.11",
-    "vue-router": "^3.3.2"
+    "vue-router": "^3.3.2",
+    "vuex": "^3.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",

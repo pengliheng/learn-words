@@ -1,13 +1,41 @@
+import Layout from '@/layout'
 import VueRouter from 'vue-router'
+import { getToken } from '@/utils/auth' // get token from cookie
+
 const routes = [
     {
         path: '/',
-        name: 'dashboard',
-        component: () => import('@/views/dashboard')
+        redirect: '/dashboard',
+    },
+    {
+        path: '/dashboard',
+        component: Layout,
+        redirect: '/dashboard/index',
+        name: 'Dashboard',
+        children: [
+            {
+                icon: 'el-icon-location',
+                name: 'Index',
+                path: 'index',
+                component: () => import('@/views/dashboard')
+            },
+            {
+                icon: 'el-icon-word',
+                name: 'Vocabulary',
+                path: 'vocabulary',
+                component: () => import('@/views/vocabulary')
+            },
+        ]
+    },
+    {
+        // icon: 'el-icon-right',
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/profile')
     },
     {
         path: '/login',
-        name: 'login',
+        name: 'Login',
         component: () => import('@/views/login')
     }
 ]
@@ -17,10 +45,19 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.name !== 'Login') {
-        next({ name: 'Login' }) 
+    const hasToken = getToken()
+    if (hasToken) {
+        if (to.name === 'Login') {
+            next({ name: 'Dashboard' }) 
+        } else {
+            next()
+        }
     } else {
-        next()
+        if (to.name === 'Login') {
+            next()
+        } else {
+            next({ name: 'Login' }) 
+        }
     }
 })
 

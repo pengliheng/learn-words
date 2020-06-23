@@ -1,9 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 )
+
+var whiteURL = []string{
+	"/api/login", 
+	"/api/logout",
+	"/api/register",
+}
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -31,15 +38,19 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func tokenMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/api/login" || r.URL.Path == "/api/register" {
+		if indexOf(whiteURL, r.URL.Path) > -1 {
 			next.ServeHTTP(w, r)
 			return
-		} else if cookie, err := r.Cookie(cookieTokenName); err == nil {
+		}
+		fmt.Println("111", tokenRedis)
+		cookie, err := r.Cookie(cookieTokenName)
+		if err == nil {
 			if indexOf(tokenRedis, cookie.Value) > -1 {
 				next.ServeHTTP(w, r)
 				return
 			}
 		}
+		fmt.Println(err)
 		http.Error(w, "Not authorized", 401)
 	})
 }
