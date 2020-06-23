@@ -16,7 +16,7 @@
 
 - [ ] call google api to get some picture which search by this vocabulary
 
-- [ ] call translate api to get a mean which search by this vocabulary
+- [ ] call translate api to get mean and pronunciation of the vocabulary
 
 - [ ] to use the user account to sperate vocabulary list.
 
