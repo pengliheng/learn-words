@@ -6,7 +6,7 @@
 
 - MongoDB
 
-- Golang
+- Golang Mux
 
 - Nginx
 
