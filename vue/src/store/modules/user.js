@@ -27,35 +27,21 @@ export default {
         },
         async login ({ commit }, form) {
             const signData = await Api.APP.SignIn(form)
-            if (signData.errorCode === 1) {
+            if (signData) {
+                commit('SET_INFO', signData)
+                router.push('/')
+            } else {
                 // not have account
                 const registerData = await Api.APP.SignUp(form)
-                if (registerData.errorCode === 0) {
-                    Message.success({
-                        message: registerData.message || 'Success',
-                    })
-                    commit('SET_INFO', registerData.data)
+                if (registerData) {
+                    commit('SET_INFO', registerData)
                     router.push('/')
                 }
-            } else if (signData.errorCode === 2) {
-                // password not right
-                // Message.error({
-                //     message: signData.message || 'Has Error',
-                // })
-            } else if (signData.errorCode === 0) {
-                // success login
-                // Message.success({
-                //     message: signData.message || 'Success',
-                //     type: 'success'
-                // })
-                commit('SET_INFO', signData.data)
-                router.push('/')
             }
         },
         async userInfo ({ commit }) {
             const signData = await Api.APP.UserInfo()
-            commit('SET_INFO', signData.data)
-
+            commit('SET_INFO', signData)
         }
     }
 }

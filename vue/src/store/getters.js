@@ -17,7 +17,6 @@ const getters = {
     department: state => state.user.department,
     authCurrency: state => state.user.authCurrency,
     authAmount: state => state.user.authAmount,
-    routes: state => state.permission.routes,
     errorLogs: state => state.errorLog.logs,
     caseInfo: state => state.case.caseInfo,
     hasCaseRunning: state => state.app.hasCaseRunning,
@@ -26,6 +25,7 @@ const getters = {
     countrys: state => state.dc.countrys,
     env: state => state.settings.env,
     actionEnable: state => state.settings.actionEnable,
+    routes: state => state.permission.routes,
     vocabulary: state => state.vocabulary.list
   }
   export default getters

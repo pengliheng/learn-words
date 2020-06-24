@@ -26,6 +26,7 @@ type Word struct {
 	Author   string
 	CreateAt time.Time
 	UpdateAt time.Time
+	Image    []string
 }
 
 const cookieTokenName = "Authorization"
@@ -66,7 +67,7 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 			primitive.E{Key: "images", Value: getImage(word.Name)},
 		},
 	)
-	
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -97,6 +98,7 @@ func updateWord(w http.ResponseWriter, r *http.Request) {
 				primitive.E{Key: "name", Value: word.Name},
 				primitive.E{Key: "author", Value: word.Author},
 				primitive.E{Key: "updateAt", Value: time.Now()},
+				primitive.E{Key: "images", Value: getImage(word.Name)},
 			}},
 		},
 	)

@@ -27,8 +27,10 @@ export default {
     },
     actions: {
         async get({ commit }) {
-            const vocabulary = await Api.VOCABULARY.Get()
-            commit('SET_VOCABOLUARY', vocabulary.data)
+            if (this.getters.vocabulary.length === 0) {
+                const vocabulary = await Api.VOCABULARY.Get()
+                commit('SET_VOCABOLUARY', vocabulary)
+            }
         },
         async update({ commit }, form) {
             await Api.VOCABULARY.Update(form)
@@ -46,6 +48,10 @@ export default {
             await Api.VOCABULARY.Delete(id)
             commit('DELETE_VOCABOLUARY', id)
         },
-        
+        async getRandomOne(store) {
+            const vocabulary = store.state.list
+            const i = Math.floor(Math.random() * vocabulary.length)
+            return vocabulary[i]
+        }
     }
 }

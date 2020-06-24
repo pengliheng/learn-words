@@ -1,6 +1,7 @@
 import Layout from '@/layout'
 import VueRouter from 'vue-router'
 import { getToken } from '@/utils/auth' // get token from cookie
+import store from '@/store'
 
 const routes = [
     {
@@ -44,8 +45,17 @@ const router = new VueRouter({
     routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async(to, from, next) => {
     const hasToken = getToken()
+    if (hasToken && !store.getters.name) {
+        await store.dispatch('user/userInfo')
+    }
+    if (!store.getters.vocabulary.length) {
+        await store.dispatch('vocabulary/get')
+    }
+    if (!store.getters.routes.length) {
+        await store.dispatch('permission/getRoutes', routes.find(route => route.name === 'Dashboard').children)
+    }
     if (hasToken) {
         if (to.name === 'Login') {
             next({ name: 'Dashboard' }) 

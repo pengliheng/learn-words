@@ -13,8 +13,6 @@ Vue.use(ElementUI);
 
 Vue.config.devtools = true
 
-store.dispatch('user/userInfo')
-
 new Vue({
   router,
   store,

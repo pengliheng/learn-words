@@ -1,25 +1,32 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
+	"net/url"
 
-	"github.com/gocolly/colly"
+	"github.com/PuerkitoBio/goquery"
 )
 
 func getImage(keyWord string) []string {
-
-	c := colly.NewCollector()
-
-	// Find and visit all links
-	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		e.Request.Visit(e.Attr("href"))
+	res, err := http.Get("https://www.bing.com/images/search?q=" + url.PathEscape(keyWord) + "&first=1&scenario=ImageBasicHover&cw=1117&ch=1009")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	images := []string{}
+	doc.Find(".item img").Each(func(i int, s *goquery.Selection) {
+		src, isExist := s.Attr("src")
+		if isExist {
+			images = append(images, src)
+		}
 	})
-
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
-	})
-
-	c.Visit("http://go-colly.org/")
-
-	return []string{}
+	return images
 }

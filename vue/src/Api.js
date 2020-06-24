@@ -56,7 +56,7 @@ axios.interceptors.response.use((r) => {
             duration: 2000
         });
     }
-    return r.data
+    return r.data.data
 });
 
 
@@ -88,7 +88,6 @@ const VOCABULARY = {
             method: 'PATCH',
             data
         })
-        return res.data
     },
 }
 
@@ -99,7 +98,6 @@ const APP = {
             method: 'POST',
             data
         })
-        return res.data
     },
     async SignUp(data) {
         return await axios({
@@ -107,7 +105,6 @@ const APP = {
             method: 'POST',
             data
         })
-        return res.data
     },
     async Logout() {
         return await axios({
