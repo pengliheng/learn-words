@@ -14,7 +14,7 @@
 
 ## TODO
 
-- [ ] call google api to get some picture which search by this vocabulary
+- [x] call google api to get some picture which search by this vocabulary
 
 - [ ] call translate api to get mean and pronunciation of the vocabulary
 
