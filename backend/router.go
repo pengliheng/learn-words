@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -55,7 +54,6 @@ func getWords(w http.ResponseWriter, r *http.Request) {
 
 // 创建单词
 func createWord(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("123若32re")
 	var word Word
 	json.NewDecoder(r.Body).Decode(&word)
 	result, err := wordsCollection.InsertOne(
@@ -65,8 +63,10 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 			primitive.E{Key: "author", Value: word.Author},
 			primitive.E{Key: "createAt", Value: time.Now()},
 			primitive.E{Key: "updateAt", Value: time.Now()},
+			primitive.E{Key: "images", Value: getImage(word.Name)},
 		},
 	)
+	
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -188,7 +188,6 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	// Read cookie
 	cookie, err := r.Cookie(cookieTokenName)
 	if err != nil {
-		fmt.Printf("Cant find cookie :/\r\n")
 		return
 	}
 	i := indexOf(tokenRedis, cookie.Value)
@@ -246,7 +245,6 @@ func handleGetUserInfo(w http.ResponseWriter, r *http.Request) {
 	jwt.ParseWithClaims(cookie.Value, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(cookieTokenName), nil
 	})
-	fmt.Println(claims["user"])
 	json.NewEncoder(w).Encode(bson.M{
 		"errorCode": 0,
 		"data": bson.M{

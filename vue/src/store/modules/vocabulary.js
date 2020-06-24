@@ -31,12 +31,16 @@ export default {
             commit('SET_VOCABOLUARY', vocabulary.data)
         },
         async update({ commit }, form) {
-            const vocabulary = await Api.VOCABULARY.Update(form)
+            await Api.VOCABULARY.Update(form)
             commit('UPDATE_VOCABOLUARY', form)
         },
         async create({ commit }, form) {
-            const vocabulary = await Api.VOCABULARY.Create(Object.assign(form))
-            commit('CREATE_VOCABOLUARY', vocabulary.data)
+            await Api.VOCABULARY.Create(Object.assign(form, {
+                createAt: new Date(),
+                updateAt: new Date(),
+                author: this.getters.name
+            }))
+            commit('CREATE_VOCABOLUARY', form)
         },
         async delete({ commit }, id) {
             await Api.VOCABULARY.Delete(id)

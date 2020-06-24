@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
 
 var whiteURL = []string{
-	"/api/login", 
+	"/api/login",
 	"/api/logout",
 	"/api/register",
 }
@@ -42,7 +41,6 @@ func tokenMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
-		fmt.Println("111", tokenRedis)
 		cookie, err := r.Cookie(cookieTokenName)
 		if err == nil {
 			if indexOf(tokenRedis, cookie.Value) > -1 {
@@ -50,7 +48,6 @@ func tokenMiddleware(next http.Handler) http.Handler {
 				return
 			}
 		}
-		fmt.Println(err)
 		http.Error(w, "Not authorized", 401)
 	})
 }

@@ -1,13 +1,13 @@
 import Axios from 'axios'
 import { getToken, setToken, removeToken } from '@/utils/auth' // get token from cookie
 import { Message } from 'element-ui';
+import router from '@/router'
 
 const axios = Axios.create({
     baseURL: `//${document.domain}:8080`,
     timeout: 1000,
     withCredentials: true,
 })
-
 
 // request interceptor
 axios.interceptors.request.use(
@@ -43,7 +43,7 @@ axios.interceptors.response.use(
             });
         }
         removeToken()
-        router.push('/login')
+        router.push({name: 'Login'})
         return Promise.reject(error);
     }
 );
@@ -56,7 +56,7 @@ axios.interceptors.response.use((r) => {
             duration: 2000
         });
     }
-    return r
+    return r.data
 });
 
 
@@ -64,29 +64,26 @@ axios.interceptors.response.use((r) => {
 
 const VOCABULARY = {
     async Get() {
-        const res = await axios({
+        return await axios({
             url: '/api/word',
             method: 'GET',
         })
-        return res.data
     },
     async Delete(id) {
-        const res = await axios({
+        return await axios({
             url: '/api/word/' + id,
             method: 'DELETE',
         })
-        return res.data
     },
     async Create(data) {
-        const res = await axios({
+        return await axios({
             url: '/api/word',
             method: 'post',
             data
         })
-        return res.data
     },
     async Update(data) {
-        const res = await axios({
+        return await axios({
             url: '/api/word/' + data._id,
             method: 'PATCH',
             data
@@ -97,7 +94,7 @@ const VOCABULARY = {
 
 const APP = {
     async SignIn(data) {
-        const res = await axios({
+        return await axios({
             url: '/api/login',
             method: 'POST',
             data
@@ -105,7 +102,7 @@ const APP = {
         return res.data
     },
     async SignUp(data) {
-        const res = await axios({
+        return await axios({
             url: '/api/register',
             method: 'POST',
             data
@@ -113,18 +110,16 @@ const APP = {
         return res.data
     },
     async Logout() {
-        const res = await axios({
+        return await axios({
             url: '/api/logout',
             method: 'POST'
         })
-        return res.data
     },
     async UserInfo() {
-        const res = await axios({
+        return await axios({
             url: '/api/userInfo',
             method: 'GET',
         });
-        return res.data
     },
 
 }
