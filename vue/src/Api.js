@@ -26,20 +26,29 @@ axios.interceptors.response.use(
         const res = response.data
         if (res.errorCode !== 0) {
             Message({
-                message: res.message,
+                message: res.message||error,
                 type: 'error'
             });
+        }else{
+            if (res.message) {
+                Message({
+                    message: res.message,
+                    type: 'success'
+                });
+            }
         }
         return response;
     },
     (error) => {
-        if (error.response && error.response.status !== 401) {
+        if (error.response) {
             Message({
-                message: error.response.data.message
-                    ? error.response.data.message
-                    : 'Could not connect to server',
-                type: 'error',
-                duration: 2000
+                message: `${error.response.status}: ${error.response.data}`,
+                type: 'error'
+            });
+        }else{
+            Message({
+                message: error.message,
+                type: 'error'
             });
         }
         removeToken()
@@ -65,26 +74,26 @@ axios.interceptors.response.use((r) => {
 const VOCABULARY = {
     async Get() {
         return await axios({
-            url: '/api/word',
+            url: '/api/vocabulary',
             method: 'GET',
         })
     },
     async Delete(id) {
         return await axios({
-            url: '/api/word/' + id,
+            url: '/api/vocabulary/' + id,
             method: 'DELETE',
         })
     },
     async Create(data) {
         return await axios({
-            url: '/api/word',
+            url: '/api/vocabulary',
             method: 'post',
             data
         })
     },
     async Update(data) {
         return await axios({
-            url: '/api/word/' + data._id,
+            url: '/api/vocabulary/' + data._id,
             method: 'PATCH',
             data
         })

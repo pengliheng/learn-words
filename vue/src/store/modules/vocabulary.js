@@ -26,10 +26,10 @@ export default {
         }
     },
     actions: {
-        async get({ commit }) {
-            if (this.getters.vocabulary.length === 0) {
+        async get(store) {
+            if (store.state.list.length === 0) {
                 const vocabulary = await Api.VOCABULARY.Get()
-                commit('SET_VOCABOLUARY', vocabulary)
+                store.commit('SET_VOCABOLUARY', vocabulary)
             }
         },
         async update({ commit }, form) {

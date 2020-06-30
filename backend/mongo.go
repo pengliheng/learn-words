@@ -10,7 +10,7 @@ import (
 )
 
 var ctx context.Context
-var wordsCollection *mongo.Collection
+var vocabularysCollection *mongo.Collection
 var accountsCollection *mongo.Collection
 
 func handleMongodb() {
@@ -25,6 +25,6 @@ func handleMongodb() {
 		log.Fatal(err)
 	}
 	log.Println("Connected to MongoDB!")
-	wordsCollection = client.Database("testing").Collection("words")
+	vocabularysCollection = client.Database("testing").Collection("vocabularys")
 	accountsCollection = client.Database("testing").Collection("accounts")
 }

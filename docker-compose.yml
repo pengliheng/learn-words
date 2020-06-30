@@ -1,30 +1,62 @@
 version: "3.7"
 
 services:
-    mongodb:
-        logging:
-            driver: none
-        image: mongo
+    # mongodb:
+    #     logging:
+    #         driver: none
+    #     image: mongo
+    #     restart: always
+    #     environment:
+    #         MONGO_INITDB_ROOT_USERNAME: root
+    #         MONGO_INITDB_ROOT_PASSWORD: ewqewq
+    #     volumes:
+    #         - ./mongodb:/data/db
+    #     networks:
+    #         - back-tier
+
+    mysql:
+        #构建mysql镜像
+        image: mysql
+        container_name: mysql-db # 容器名
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci #设置utf8字符集
         restart: always
         environment:
-            MONGO_INITDB_ROOT_USERNAME: root
-            MONGO_INITDB_ROOT_PASSWORD: ewqewq
+            MYSQL_ROOT_PASSWORD: root #root管理员用户密码
+            MYSQL_USER: test   #创建test用户
+            MYSQL_PASSWORD: test  #设置test用户的密码
+        ports:
+            - '3306:3306'  #host物理直接映射端口为6606
         volumes:
-            - ./mongodb:/data/db
+            #mysql数据库挂载到host物理机目录/e/docker/mysql/data/db
+            - "./mysql/db:/mysql"
+            #容器的配置目录挂载到host物理机目录/e/docker/mysql/data/conf  
+            - "./mysql/conf:/mysql/conf.d"
         networks:
             - back-tier
 
-    backend:
+    java:
         restart: always
         command:
-            - "air"
+            - "mvn spring-boot:run"
         build:
-            context: "./backend"
+            context: "./java"
         volumes:
-            - ./backend/:/go/src/github.com/pengliheng/golang-api/backend/
+            - ./java:/java
         networks:
             - gate-tier
             - back-tier
+             
+    # golang:
+    #     restart: always
+    #     command:
+    #         - "air"
+    #     build:
+    #         context: "./backend"
+    #     volumes:
+    #         - ./backend/:/go/src/github.com/pengliheng/golang-api/backend/
+    #     networks:
+    #         - gate-tier
+    #         - back-tier
 
     frontend:
         restart: always

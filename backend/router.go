@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -13,14 +14,21 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Account is a account type
-type Account struct {
-	Name     string
-	Password string
+// VocabularyRate is the type structure pf vocabulary
+type VocabularyRate struct {
+	ID   primitive.ObjectID
+	Rate int
 }
 
-// Word is a word title
-type Word struct {
+// Account is a account type
+type Account struct {
+	Name       string
+	Password   string
+	Vocabulary []VocabularyRate
+}
+
+// Vocabulary is a vocabulary structure
+type Vocabulary struct {
 	ID       primitive.ObjectID
 	Name     string
 	Author   string
@@ -32,10 +40,10 @@ type Word struct {
 const cookieTokenName = "Authorization"
 
 // 获取所有单词
-func getWords(w http.ResponseWriter, r *http.Request) {
+func getVocabularys(w http.ResponseWriter, r *http.Request) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancelFunc()
-	cur, _ := wordsCollection.Find(ctx, bson.D{})
+	cur, _ := vocabularysCollection.Find(ctx, bson.D{})
 	res := []bson.M{}
 	for cur.Next(ctx) {
 		var result bson.M
@@ -54,17 +62,17 @@ func getWords(w http.ResponseWriter, r *http.Request) {
 }
 
 // 创建单词
-func createWord(w http.ResponseWriter, r *http.Request) {
-	var word Word
-	json.NewDecoder(r.Body).Decode(&word)
-	result, err := wordsCollection.InsertOne(
+func createVocabulary(w http.ResponseWriter, r *http.Request) {
+	var vocabulary Vocabulary
+	json.NewDecoder(r.Body).Decode(&vocabulary)
+	result, err := vocabularysCollection.InsertOne(
 		context.Background(),
 		bson.D{
-			primitive.E{Key: "name", Value: word.Name},
-			primitive.E{Key: "author", Value: word.Author},
+			primitive.E{Key: "name", Value: vocabulary.Name},
+			primitive.E{Key: "author", Value: vocabulary.Author},
 			primitive.E{Key: "createAt", Value: time.Now()},
 			primitive.E{Key: "updateAt", Value: time.Now()},
-			primitive.E{Key: "images", Value: getImage(word.Name)},
+			primitive.E{Key: "images", Value: getImage(vocabulary.Name)},
 		},
 	)
 
@@ -80,25 +88,25 @@ func createWord(w http.ResponseWriter, r *http.Request) {
 }
 
 // 更新单词
-func updateWord(w http.ResponseWriter, r *http.Request) {
+func updateVocabulary(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r) // get params
-	var word Word
-	json.NewDecoder(r.Body).Decode(&word)
+	var vocabulary Vocabulary
+	json.NewDecoder(r.Body).Decode(&vocabulary)
 	objectID, err := primitive.ObjectIDFromHex(params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
-	result, err := wordsCollection.UpdateOne(
+	result, err := vocabularysCollection.UpdateOne(
 		context.Background(),
 		bson.D{
 			primitive.E{Key: "_id", Value: objectID},
 		},
 		bson.D{
 			primitive.E{Key: "$set", Value: bson.D{
-				primitive.E{Key: "name", Value: word.Name},
-				primitive.E{Key: "author", Value: word.Author},
+				primitive.E{Key: "name", Value: vocabulary.Name},
+				primitive.E{Key: "author", Value: vocabulary.Author},
 				primitive.E{Key: "updateAt", Value: time.Now()},
-				primitive.E{Key: "images", Value: getImage(word.Name)},
+				primitive.E{Key: "images", Value: getImage(vocabulary.Name)},
 			}},
 		},
 	)
@@ -113,13 +121,14 @@ func updateWord(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func deleteWord(w http.ResponseWriter, r *http.Request) {
+// 删除单词
+func deleteVocabulary(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r) // get params
 	objectID, err := primitive.ObjectIDFromHex(params["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
-	result, err := wordsCollection.DeleteOne(
+	result, err := vocabularysCollection.DeleteOne(
 		context.Background(),
 		bson.D{
 			primitive.E{Key: "_id", Value: objectID},
@@ -136,11 +145,10 @@ func deleteWord(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+// 登录
 func handleLogin(w http.ResponseWriter, r *http.Request) {
 	var account Account
-	var resultFind struct {
-		Value float64
-	}
+	var resultFind Account
 	json.NewDecoder(r.Body).Decode(&account)
 	errFindNamePassword := accountsCollection.FindOne(
 		context.Background(),
@@ -186,6 +194,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// 登出
 func handleLogout(w http.ResponseWriter, r *http.Request) {
 	// Read cookie
 	cookie, err := r.Cookie(cookieTokenName)
@@ -202,11 +211,10 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// 注册
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	var account Account
-	var resultFind struct {
-		Value float64
-	}
+	var resultFind Account
 	json.NewDecoder(r.Body).Decode(&account)
 	errFind := accountsCollection.FindOne(
 		context.Background(),
@@ -224,6 +232,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		bson.D{
 			primitive.E{Key: "name", Value: account.Name},
 			primitive.E{Key: "password", Value: account.Password},
+			primitive.E{Key: "vocabulary", Value: []VocabularyRate{}},
 		},
 	)
 	jwt := generateJWT(account.Name)
@@ -241,17 +250,35 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// 获取用户信息
 func handleGetUserInfo(w http.ResponseWriter, r *http.Request) {
 	cookie, _ := r.Cookie(cookieTokenName)
 	claims := jwt.MapClaims{}
 	jwt.ParseWithClaims(cookie.Value, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(cookieTokenName), nil
 	})
+	var resultFind Account
+	errFindName := accountsCollection.FindOne(
+		context.Background(),
+		bson.M{
+			"name": claims["user"],
+		},
+	).Decode(&resultFind)
+	fmt.Println(33333,errFindName, &resultFind, claims)
+	if errFindName != nil {
+		// not find user
+		json.NewEncoder(w).Encode(bson.M{
+			"message":   "account not exist",
+			"errorCode": 1,
+		})
+	}
+	// find user
 	json.NewEncoder(w).Encode(bson.M{
 		"errorCode": 0,
 		"data": bson.M{
-			"name":  claims["user"],
-			"token": cookie.Value,
+			"userInfo": &resultFind,
+			"name":     claims["user"],
+			"token":    cookie.Value,
 		},
 	})
 }
@@ -262,10 +289,10 @@ func handleRoute() {
 	r.HandleFunc("/api/register", handleRegister).Methods(http.MethodOptions, http.MethodPost)
 	r.HandleFunc("/api/login", handleLogin).Methods(http.MethodOptions, http.MethodPost)
 	r.HandleFunc("/api/logout", handleLogout).Methods(http.MethodOptions, http.MethodPost)
-	r.HandleFunc("/api/word", getWords).Methods(http.MethodGet)
-	r.HandleFunc("/api/word", createWord).Methods(http.MethodOptions, http.MethodPost)
-	r.HandleFunc("/api/word/{id}", updateWord).Methods(http.MethodPatch, http.MethodOptions)
-	r.HandleFunc("/api/word/{id}", deleteWord).Methods(http.MethodDelete, http.MethodOptions)
+	r.HandleFunc("/api/vocabulary", getVocabularys).Methods(http.MethodGet)
+	r.HandleFunc("/api/vocabulary", createVocabulary).Methods(http.MethodOptions, http.MethodPost)
+	r.HandleFunc("/api/vocabulary/{id}", updateVocabulary).Methods(http.MethodPatch, http.MethodOptions)
+	r.HandleFunc("/api/vocabulary/{id}", deleteVocabulary).Methods(http.MethodDelete, http.MethodOptions)
 	r.Use(loggingMiddleware)
 	r.Use(corsMiddleware)
 	r.Use(tokenMiddleware)

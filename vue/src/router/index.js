@@ -47,11 +47,13 @@ const router = new VueRouter({
 
 router.beforeEach(async(to, from, next) => {
     const hasToken = getToken()
-    if (hasToken && !store.getters.name) {
-        await store.dispatch('user/userInfo')
-    }
-    if (!store.getters.vocabulary.length) {
-        await store.dispatch('vocabulary/get')
+    if (hasToken) {
+        if (!store.getters.name) {
+            await store.dispatch('user/userInfo')
+        }
+        if (!store.getters.vocabulary.length) {
+            await store.dispatch('vocabulary/get')
+        }
     }
     if (!store.getters.routes.length) {
         await store.dispatch('permission/getRoutes', routes.find(route => route.name === 'Dashboard').children)

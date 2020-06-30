@@ -2,6 +2,6 @@ package main
 
 func main() {
 	handleMongodb()
-	// handleRedis()
+	handleRedis()
 	handleRoute()
 }

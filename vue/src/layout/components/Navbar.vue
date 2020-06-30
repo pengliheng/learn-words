@@ -37,8 +37,6 @@ export default {
   methods: {
     async logout() {
       await this.$store.dispatch('user/logout')
-            // this.$store.dispatch('user/login', this.form)
-      this.$message.success('Successfully logout')
     }
   }
 }
