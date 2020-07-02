@@ -36,8 +36,6 @@ services:
 
     java:
         restart: always
-        command:
-            - "mvn spring-boot:run"
         build:
             context: "./java"
         volumes:

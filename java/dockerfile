@@ -1,0 +1,7 @@
+FROM maven
+
+COPY . /java
+
+WORKDIR /java
+
+CMD [ "mvn", "spring-boot:run" ]
