@@ -1,3 +1,1303 @@
+#进阶1：基础查询
+
+#打开对应的数据库
+USE myemployees;
+
+#1 查询表中的单个字段
+SELECT last_name FROM employees;
+
+#2 查询表中的多个字段
+SELECT last_name, salary, email FROM employees;
+
+#3 查询表中的所有字段
+SELECT * FROM employees;
+
+#4 查询常量值
+SELECT 100;
+SELECT 'john';
+
+#5 查询表达式
+SELECT 100 * 98;
+SELECT 100 / 98;
+
+#6 查询函数
+SELECT  VERSION();
+
+#7 起别名
+ #方式一 使用as
+SELECT 100 % 98 AS 结果;
+SELECT last_name AS 姓,first_name AS 名 FROM employees;
+
+ #方式二 使用空格
+SELECT last_name 姓, first_name 名 FROM employees;
+
+#案例: 查询salary,显示结果为out put
+SELECT salary AS "out put" FROM employees;
+
+#8 去重复 DISTINCT
+#案例：查询员工表中涉及到的所有部门编号
+SELECT DISTINCT department_id FROM employees;
+
+#9 +号的作用
+#案例：查询员工名和姓连接成一个字段，并显示为姓名
+SELECT CONCAT(last_name ,first_name)AS 姓名 FROM employees;
+
+
+
+# 测试
+#1
+SELECT last_name,job_id,salary AS sal FROM employees;
+
+SELECT * FROM employees;
+
+SELECT employee_id,last_name,salary * 12 "ANNUAL SALARY" FROM employees;
+
+DESC departments; 
+
+SELECT * FROM departments;
+
+
+SELECT 
+  CONCAT(
+    employee_id,
+    ',',
+    first_name,
+    ',',
+    last_name,
+    ',',
+    email,
+    phone_number,
+    ',',
+    job_id,
+    ',',
+    IFNULL(commission_pct, 0),
+    ',',
+    salary,
+    manager_id,
+    ',', 
+    department_id,
+    ',',
+    hiredate
+  ) AS "OUT_PUT" 
+FROM
+  employees;
+
+#进阶2 条件查询
+#一、按条件表达式筛选
+
+#案例1：查询工资>12000的员工信息
+SELECT * FROM employees WHERE salary > 12000;
+
+#案例2：查询部门编号不等于90号的员工名和部门编号
+SELECT 
+  last_name,
+  department_id 
+FROM
+  employees 
+WHERE department_id <> 90 ;
+
+#二、按逻辑表达式筛选
+#案例1：查询工资在10000到20000之间的员工名、工资以及奖金
+SELECT 
+  last_name,
+  salary,
+  commission_pct 
+FROM
+  employees 
+WHERE salary >= 10000 
+  AND salary <= 20000 ;
+
+#案例2：查询部门编号不是在90到110之间，或者工资高于15000的员工信息
+
+SELECT * FROM employees WHERE NOT ( department_id >= 90 AND department_id <= 110 ) OR salary > 15000; 
+
+#三、模糊查询
+
+#1.like
+#案例1：查询员工名中包含字符a的员工信息
+  SELECT 
+    * 
+  FROM
+    employees 
+  WHERE last_name LIKE '%a%' ;
+
+#案例2：查询员工名中第三个字符为n，第五个字符为l的员工名和工资
+SELECT 
+  last_name,
+  salary 
+FROM
+  employees 
+WHERE last_name LIKE '__n_l%' ;
+
+#案例3：查询员工名中第二个字符为_的员工名
+SELECT 
+  last_name 
+FROM
+  employees 
+WHERE last_name LIKE '_\_%' ;
+
+SELECT 
+  last_name 
+FROM
+  employees 
+WHERE last_name LIKE '_$_%' ESCAPE '$' ;
+
+#2.between and
+#案例1：查询员工编号在100到120之间的员工信息
+SELECT 
+  * 
+FROM
+  employees 
+WHERE employee_id BETWEEN 100 
+  AND 120;
+#3.in关键字
+/*
+  含义：判断某字段的值是否属于in列表中的某一项
+  特点：
+       1、使用in提高语句简洁度
+       2、in列表的值类型必须一致或兼容
+       
+*/
+#案例：查询员工的工种编号是 AD_VP, AD_PRES 中的一个员工名和工种编号
+SELECT 
+   last_name,
+   job_id 
+FROM
+   employees 
+WHERE job_id IN ('AD_PRES', 'AD_VP');
+
+
+SELECT last_name,job_id FROM employees 
+WHERE job_id ='AD_PRES' OR job_id = 'AD_VP';
+
+#4、is null
+/*
+  =或<>不能用于判断null值
+*/
+#案例1：查询没有奖金的员工名和奖金率
+SELECT last_name,commission_pct
+ FROM employees WHERE commission_pct IS NULL;
+ 
+#案例2：查询有奖金的员工名和奖金率
+SELECT last_name,commission_pct
+ FROM employees WHERE commission_pct IS NOT NULL;
+
+#安全等于 <=> 可以用来判断null值
+SELECT last_name,commission_pct
+ FROM employees WHERE commission_pct <=> NULL;
+ 
+
+#2.查询员工号为176的员工的姓名和部门号和年薪
+SELECT first_name,last_name,department_id,salary*12*(1+IFNULL(commission_pct,0)) "年薪"
+FROM employees 
+ WHERE employee_id = 176;
+
+#1.查询工资大于12000的员工姓名和工资
+SELECT first_name,last_name,salary
+FROM employees
+      WHERE salary > 12000;
+
+#3.选择工资不在5000到12000的员工的姓名和工资
+SELECT first_name,last_name,salary
+FROM employees
+     WHERE salary < 5000 OR salary > 12000;
+
+#4.选择在20或50号部门工作的员工姓名和部门号
+SELECT first_name,last_name,department_id
+FROM employees 
+    WHERE department_id IN (20,50);
+
+#5.选择公司中没有管理者的员工姓名及job_id
+SELECT last_name,first_name,job_id
+FROM employees
+   WHERE manager_id IS NULL;
+
+#6.选择公司中有奖金的员工姓名，工资和奖金级别
+SELECT last_name,first_name,salary,commission_pct
+FROM employees
+    WHERE commission_pct IS NOT NULL;
+    
+#7.选择员工姓名的第三个字母是a的员工姓名
+SELECT last_name,first_name
+ FROM employees
+    WHERE last_name LIKE '__a%' OR first_name LIKE '__a%';
+
+#8.选择姓名中有字母a和e的员工姓名
+SELECT last_name,first_name
+FROM employees
+    WHERE last_name LIKE '%a%' AND first_name LIKE '%c%';
+
+#9.显示出表employees表中的first_name已‘e’结尾的员工信息
+SELECT * FROM
+   employees
+   WHERE first_name LIKE '%e';
+
+#10.显示出表employees部门编号在80-100之间的姓名、职位
+SELECT last_name,first_name,job_id
+FROM employees
+ WHERE department_id >= 80 AND department_id <= 100;
+ 
+#11.显示出表employees的manager_id是100,101,110的员工姓名职位
+SELECT last_name,first_name,job_id,manager_id
+FROM employees 
+ WHERE manager_id IN (100,101,110);
+ 
+#1.查询没有奖金，且工资小于18000的salary,last_name
+SELECT last_name,commission_pct,salary FROM employees
+ WHERE commission_pct IS NULL AND salary < 18000;
+
+#2.查询employees表中，job_id不为 'IT'或者工资为12000的员工信息
+SELECT * FROM employees 
+  WHERE job_id <> 'IT' OR salary = 12000;
+  
+SELECT * FROM employees 
+  WHERE job_id NOT LIKE '%IT%' OR salary = 12000;
+
+#3.查看deparments表结构
+DESC departments;
+
+#4.查询部门departments表中涉及了那些位置编号
+SELECT DISTINCT location_id FROM departments;
+
+
+
+SELECT * FROM employees;
+
+SELECT * FROM employees 
+  WHERE commission_pct LIKE '%%' 
+     AND last_name LIKE '%%';
+     
+#进阶3，排序查询
+#案例1：查询员工信息，要求工资从高到低排序
+SELECT * FROM employees
+ ORDER BY salary DESC;
+ 
+#案例2：查询部门编号大于等于90的员工信息，按入职时间先后进行排序
+SELECT * FROM employees
+   WHERE department_id >= 90
+   ORDER BY hiredate;
+ 
+#案例3：按年薪的高低显示员工的信息和年薪  按表达式排序
+SELECT * , salary * 12 * (1+IFNULL (commission_pct,0)) 年薪 
+  FROM
+ employees 
+ORDER BY salary * 12 * (1+IFNULL (commission_pct,0)) DESC;
+
+#案例4：按年薪的高低显示员工的信息和年薪  按别名排序
+SELECT * , salary * 12 * (1+IFNULL (commission_pct,0)) 年薪 
+  FROM
+ employees 
+ORDER BY 年薪 DESC;
+
+#案例5：按姓名的长度显示员工的姓名和工资（按函数排序）
+SELECT LENGTH(last_name) 长度,last_name,salary 
+FROM employees
+   ORDER BY 长度 DESC;
+
+#案例6：查询员工信息，要求先按工资排序，再按员工编号排序(按多个字段排序)
+SELECT * FROM employees ORDER BY salary ASC,ORDER BY employee_id DESC;
+
+
+#案例：查询员工表中涉及到的所有部门编号
+SELECT  DISTINCT department_id  FROM employees;
+
+
+
+
+
+
+#案例：查询员工名和姓连接成一个字段，并显示为姓名
+SELECT * FROM employees;
+SELECT  CONCAT (first_name , last_name) 姓名 FROM employees;
+
+
+
+SELECT employee_id,last_name, salary * 12 "ANNUAL SALARY" FROM employees;
+
+DESC departments;
+SELECT * FROM departments;
+SELECT DISTINCT job_id FROM employees;
+
+SELECT * FROM employees;
+
+SELECT 
+   CONCAT(`first_name`,',',`last_name`,',',`job_id`,',',IFNULL(`commission_pct`,0)) out_put
+ FROM employees;
+
+
+
+
+#案例1：查询工资在10000到20000之间的员工名、工资以及奖金
+SELECT last_name,salary,commission_pct
+   FROM employees
+    WHERE salary >= 10000 AND salary <= 20000;
+  
+#案例2：查询部门编号不是在90到110之间，或者工资高于15000的员工信息
+SELECT * FROM employeesq
+   WHERE department_id < 90 AND department_id < 110 OR salary > 15000
+
+#案例1：查询员工名中包含字符a的员工信息
+SELECT * FROM employees
+   WHERE last_name LIKE '%a%';
+
+#案例2:查询员工名中第三个字符为n，第五个字符为l的员工名和工资
+SELECT last_name,salary
+ FROM employees
+   WHERE last_name LIKE '__n_l%';
+   
+#案例3:查询员工名中第二个字符为_的员工名
+SELECT last_name 
+ FROM employees
+ WHERE last_name LIKE '_$_%' ESCAPE '$';
+ #where last_name like '_\_%';
+ 
+ 
+#案例1：查询员工编号在100到120之间的员工信息  
+ SELECT * FROM 
+   employees
+   WHERE employee_id BETWEEN 100 AND 120;
+   
+#案例： 查询员工的工种编号是IT_PROG AD_VP AD_PRES中的一个员工名和工种编号
+SELECT last_name,job_id
+   FROM employees
+   WHERE job_id IN('IT_PROG','AD_VP','AD_PRES');
+
+#案例: 查询没有奖金的员工名和奖金率
+SELECT last_name,commission_pct FROM employees
+  WHERE  commission_pct IS NULL;
+
+
+
+
+
+
+
+
+#查询工资大于12000的员工姓名和工资
+SELECT last_name,first_name,salary
+ FROM employees
+ WHERE salary > 12000
+
+#查询员工号为176的员工姓名和部门号和年薪
+SELECT last_name,first_name,department_id,salary*12*(1+IFNULL(commission_pct,0)) 年薪
+  FROM
+    employees
+     WHERE
+     employee_id = 176;
+ 
+#查询工资不在5000到12000的员工的姓名和工资
+SELECT last_name,first_name,salary
+  FROM employees
+  WHERE
+   salary < 5000 OR salary > 12000;
+   
+#选择在20或50号部门工作的员工姓名和部门号
+SELECT last_name,first_name,department_id
+   FROM employees
+   WHERE
+      department_id = 20 OR department_id = 50;
+ 
+#选择公司中没有管理者的员工姓名及job_id
+SELECT last_name,first_name,job_id
+   FROM employees
+  WHERE manager_id IS NULL;
+  
+#选择公司中有奖金的员工姓名，工资和奖金级别
+SELECT
+  last_name,first_name,salary,commission_pct
+  FROM employees
+  WHERE commission_pct IS NOT NULL;
+  
+#选择员工姓名的第三个字母是a的员工姓名
+SELECT last_name,first_name
+   FROM employees
+  WHERE last_name LIKE '__a%' OR first_name LIKE '__a%';
+  
+#选择姓名中有字母a和c的员工姓名
+SELECT last_name,first_name
+   FROM employees
+   WHERE last_name LIKE '%a%c%' OR first_name LIKE '%a%c%';
+
+#显示出表employees表中first_name 以e结尾的员工信息
+SELECT * FROM
+    employees
+  WHERE first_name LIKE '%e';
+  
+#显示出表employees部门编号在80-100之间的姓名、职位
+SELECT last_name,first_name,job_id
+ FROM employees
+  WHERE department_id BETWEEN 80 AND 100;
+
+#显示出表emoloyees的manager_id是100，101，110的员工姓名、职位
+SELECT last_name,first_name,job_id
+  FROM employees
+   WHERE manager_id IN(100,101,110);
+   
+   
+#查询没有奖金，且工资小于18000的salary,last_name
+SELECT salary,last_name
+ FROM employees
+    WHERE commission_pct IS NULL AND salary < 18000;
+
+#查询employss表中，job_id不为‘IT’或者工资为12000的员工信息
+SELECT * FROM employees
+    WHERE 
+    NOT(job_id = 'IT') OR salary = 12000;
+
+SELECT * FROM employees
+    WHERE 
+    job_id <> 'IT' OR salary = 12000;
+
+
+
+
+
+
+#案例:查询员工信息，要求工资从高到低排序
+SELECT * FROM  employees
+    ORDER BY salary DESC
+    
+
+#查询员工的姓名和部门号和年薪，按年薪降序，按姓名升序
+SELECT last_name,department_id,salary*12*(1+IFNULL(commission_pct,0)) 年薪
+   FROM employees
+      ORDER BY 年薪 DESC, last_name ASC;
+ 
+#选择工资不在8000到17000的员工的姓名和工资，按工资降序
+SELECT last_name,salary
+    FROM employees
+   WHERE salary < 8000 OR salary > 17000
+   ORDER BY salary DESC
+   
+#查询有邮箱中包含e的员工信息，并先按邮箱的字节数降序，再按部门号升序
+SELECT * FROM employees
+   WHERE email LIKE '%e%'
+   ORDER BY LENGTH(email) DESC,department_id ASC
+
+
+
+
+
+
+#常见函数
+#1.length 获取参数值的字节个数
+SELECT LENGTH('hello');
+SELECT LENGTH(last_name) FROM employees
+
+#2.concat 拼接字符串
+SELECT CONCAT(last_name,'_',first_name) FROM employees
+
+#3.upper把字符变成大写  lower把字符变成小写
+SELECT UPPER('hello') 大写
+SELECT LOWER('HELLO') 小写
+
+#实例：将姓变大写，名变小写，然后拼接
+SELECT CONCAT(UPPER(last_name),'_',LOWER(first_name)) 姓名 FROM employees
+
+
+#4.substr substring 截取字符
+#注意:索引从1开始
+#截取从指定索引处后面所有字符
+SELECT SUBSTRING('李莫愁爱上了陆展元',6) out_put
+
+#截取从指定索引出指定字符长度的字符
+SELECT SUBSTRING('李莫愁爱上了陆展元',1,3) out_put
+
+
+
+#案例：姓名中首字符大写，其他字符小写然后再用_拼接，显示出来
+SELECT CONCAT(UPPER(SUBSTRING(last_name,1,1)),
+ LOWER (SUBSTRING(last_name,2)),
+ '_',
+ UPPER(SUBSTRING(first_name,1,1)),
+ LOWER (SUBSTRING(first_name,2)))
+ 姓名
+  FROM employees
+  
+
+#返回子串第一次出现的索引，如果找不到返回0
+SELECT INSTR('上海自来水来自海上','上海') out_put
+
+#trim 去除前后空格
+SELECT LENGTH(TRIM('  张三丰  ')) out_put
+
+SELECT TRIM('a' FROM 'aaaaaa张三aaaa丰aaaaaa') out_put
+
+
+#lpad 用指定的字符实现左填充指定长度
+SELECT LPAD('张三丰',10,'*') out_put
+
+#rpad 用指定的字符实现右填充指定长度
+SELECT RPAD('张三丰',10,'ab') out_put
+
+#replace 替换
+SELECT REPLACE('周芷若张无忌爱上了周芷若','周芷若','赵敏') out_out
+
+
+
+#二、 数学函数
+# round 四舍五入
+SELECT ROUND(1.65);
+SELECT ROUND(1.567,2)
+
+#ceil  向上取整,返回>=该参数的最小整数
+SELECT CEIL(1.01);
+
+#floor 向下取整,返回<=该参数的最大整数
+SELECT FLOOR(-9.99)
+
+#truncate 截断
+SELECT TRUNCATE(1.69999,1);
+
+#mod取余
+/*
+ mod(a,b)  相当于 a-a/b*b
+ mod(-10,-3)    -10-(-10)/(-3)*(-3) = -1
+*/
+SELECT MOD(10,-3)
+SELECT 10%3
+
+
+
+#三 日期函数
+#now 返回当前系统日期+时间
+SELECT NOW();
+
+#curdate 返回当前系统日期 不包含时间
+SELECT CURDATE()
+
+#curtime 返回当前时间，不包含日期
+SELECT CURTIME()
+
+#可以获取指定的部分 年 月 日 时 分 秒
+
+
+#str_to_date 将字符通过指定的格式转换成日期
+SELECT STR_TO_DATE('1990-4-3','%Y-%c-%d') 日期
+
+#查询入职日期为1992-4-3的员工信息
+SELECT * FROM employees
+  WHERE hiredate = STR_TO_DATE('1992-4-3','%Y-%c-%d') 
+  
+#date_format  将日期转换成字符
+SELECT DATE_FORMAT('1992-3-4','%Y年-%m月-%d日') 日期
+
+#查询有奖金的员工名和入职日期(xx月/xx日 xx年)
+SELECT last_name,
+ DATE_FORMAT(hiredate,'%m月/%d日 %y年') 日期
+ FROM  employees
+ WHERE commission_pct IS NOT NULL
+
+#四 其他函数
+SELECT VERSION();
+SELECT DATABASE()
+SELECT USER();
+
+
+
+
+#五 流程控制函数
+#1 if函数； if else的效果
+
+SELECT IF(10>5,'大','小')
+
+#查询emp有奖金的人名字及奖金
+SELECT last_name,commission_pct,IF(commission_pct IS NULL,'没有','有' ) 奖金 FROM employees
+
+#2.case函数的使用
+#1.switch case的效果
+
+/*
+   case 要判断的字段或表达式
+   when 常量1 then 要显示的值1或语句1
+   when 常量2 then 要显示的值1或语句2
+   else 要显示的值n或语句n;
+   
+   一般做等值判断
+*/
+
+/*
+  案例：查询员工的工资，要求
+  部门号=30，显示的工资为1.1倍
+  部门号=40，显示的工资为1.2倍
+  部门号=50，显示的工资为1.3倍
+  其他部门号，显示的工资为原工资
+  end
+*/
+
+SELECT salary ,department_id,
+   CASE department_id
+   WHEN 30 THEN salary * 1.1
+   WHEN 40 THEN salary * 1.2
+   WHEN 50 THEN salary * 1.3
+   ELSE salary 
+   END 新工资
+ FROM employees
+ 
+#case 函数的使用
+#2.类似于 多重if
+/*
+   case 
+   when 条件1 then 要显示的值1或语句1
+   whee 条件2 then 要显示的值2或语句2
+   
+   else 要显示的值n或语句n
+   end
+   
+   一般做大于小于运算
+*/
+
+#案例：查询员工的情况
+#如果工资>20000,显示A级别
+#如果工资>15000,显示B级别
+#如果工资>10000,显示C级别
+#否则显示D级别
+
+SELECT salary,
+  CASE
+  WHEN salary > 20000 THEN 'A'
+  WHEN salary > 15000 THEN 'B'
+  WHEN salary > 10000 THEN 'C'
+  ELSE 'D'
+  END 级别
+ FROM employees
+ 
+ 
+ 
+ 
+ 
+ 
+
+#1.显示系统时间(注:日期+时间)
+SELECT NOW() 日期;
+
+
+
+#2.查询员工号，姓名，工资，以及工资提高20%的结果（new salary）
+SELECT
+      employee_id,last_name,salary,salary + salary * 0.2 "new salary"
+FROM employees
+
+#3.将员工的姓名按首字母排序，并写出姓名的长度（length）
+SELECT last_name,LENGTH(last_name)长度, SUBSTRING(last_name,1,1) 首字母
+ FROM employees
+     ORDER BY 首字母
+     
+
+
+#5. 使用case-when 按照下面的条件
+SELECT last_name,job_id job,
+     CASE job_id
+     WHEN 'AD_PRES'  THEN 'A'
+     WHEN 'ST_MAN'   THEN 'B'
+     WHEN 'IT_PROG'  THEN 'C'
+     WHEN 'SA_REP'   THEN 'D'
+     WHEN 'ST_CLERK' THEN 'E'
+     END grade
+ FROM employees 
+  WHERE job_id = 'AD_PRES' 
+
+ 
+ 
+ 
+ SELECT job_id FROM employees
+  WHERE job_id = 'AD_PRES'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#分组函数
+
+/*
+ 特点：
+  1、
+   sum avg一般用于处理数值型
+   max min count 可以处理任何类型
+  2、
+   以上分组函数忽略null值
+  3、
+   可以和distinct搭配实现去重的
+  4、
+   count函数的单独介绍
+   一般使用count(*)用作统计行数
+  5、
+   和分组函数一同查询的字段要求是group by后的字段
+*/
+#1.简单的使用
+SELECT SUM(salary) FROM employees
+SELECT AVG(salary) FROM employees
+SELECT MIN(salary) FROM employees
+SELECT MAX(salary) FROM employees
+SELECT COUNT(salary) FROM employees
+
+SELECT SUM(salary) 总计,ROUND(AVG(salary),2) 平均值,MIN(salary) 最小,MAX(salary) 最大
+,COUNT(salary) 个数
+ FROM employees
+
+
+
+#4.和distinct搭配
+SELECT SUM(DISTINCT salary),SUM(salary) FROM employees
+
+SELECT COUNT(DISTINCT salary),COUNT(salary) FROM employees
+
+
+
+#5、count函数的详细介绍
+SELECT COUNT(salary) FROM employees;
+
+SELECT COUNT(*) FROM employees;
+
+SELECT COUNT(1) FROM employees;
+
+#效率：
+# MYISAM存储引擎下 count(*) 的效率高
+# INNODB存储引擎下 count(*) 和 count(1)的效率差不多,比count(字段)要高一些
+
+#6、和分组函数一同查询的字段有限制
+
+SELECT AVG(salary),employee_id FROM employees #此写法为错误
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#测试
+#1.查询公司员工工资的最大值，最小值，平均值，总和
+SELECT MAX(salary) 最大值,MIN(salary) 最小值,ROUND(AVG(salary),2) 平均值
+,SUM(salary) 总和 FROM employees
+
+#2.查询员工表中的最大入职时间和最小入职时间的相差天数(DIFFRENCE)
+SELECT DATEDIFF(MAX(hiredate),MIN(hiredate)) DIFFRENCE FROM employees
+#DATEDIFF可以算出两个时间相差的天数
+
+#3.查询部门编号为90的员工个数
+SELECT COUNT(*) FROM employees
+  WHERE department_id = 90
+  
+  
+  
+  
+  
+  
+  
+  
+#进阶5：分组查询
+/*
+   语法：
+    select 分组函数，列（要求出现在group by的后面）
+    from 表
+     where 筛选条件
+     group by 分组的列表
+     order by 子句
+   注意:
+     查询列表必须特殊，要求是分组函数和group by后面出现的字段
+   特点：
+      1、分组查询中的筛选条件分为两类
+                    数据源            位置                关键字
+       分组前筛选   原始表            group by子句前面     where
+       分组后筛选   分组后的结果集    group by子句后面     having
+       
+       1、分组函数做条件肯定是放在having子句中
+       2、能用分组前筛选的，就优先考虑使用分组前的筛选
+       
+      2、group by子句支持单个字段分组，多个字段分组（多个字段之间用逗号隔开没有顺序要求）
+         也支持表达式或函数（用的较少）
+      3、也可以添加排序（排序放在整个查询的最后）
+*/
+#引入：查询每个部门的平均工资
+SELECT AVG(salary),department_id FROM employees
+  GROUP BY department_id
+
+
+#案例1：查询每个工种的最高工资
+SELECT MAX(salary),job_id
+  FROM employees
+  GROUP BY job_id
+  
+#案例2：查询每个位置上的部门个数
+SELECT COUNT(*),location_id
+  FROM departments
+  GROUP BY location_id
+  
+#添加分组前的筛选条件
+#案例1：查询邮箱中包含a字符的，每个部门的平均工资
+SELECT AVG(salary),department_id
+    FROM employees
+   WHERE email LIKE '%a%'
+   GROUP BY department_id
+
+
+#案例2：查询有奖金的每个领导手下员工的最高工资
+SELECT MAX(salary),manager_id
+  FROM employees
+  WHERE commission_pct IS NOT NULL
+  GROUP BY manager_id
+
+#添加分组后的筛选条件
+
+#案例1：查询哪个部门的员工个数>2
+SELECT COUNT(*),department_id
+ FROM employees 
+ GROUP BY department_id
+ HAVING COUNT(*)>2
+
+#案例2：查询每个工种有奖金的员工的最高工资>12000的工种编号和最高工资
+SELECT MAX(salary),job_id
+  FROM employees
+ WHERE commission_pct IS NOT NULL
+ GROUP BY job_id
+ HAVING MAX(salary) > 12000
+
+#案例3：查询领导编号>102的每个领导手下的最低工资>5000的领导编号是哪个，以及其最低工资
+SELECT MIN(salary),manager_id
+ FROM employees
+ WHERE manager_id > 102
+ GROUP BY manager_id
+ HAVING MIN(salary) > 5000
+ 
+ 
+ #按表达式或函数分组 都支持别名
+ #案例：按员工姓名的长度分组，查询每一组的员工个数，筛选员工个数>5的有哪些
+ SELECT COUNT(*),LENGTH(last_name)
+   FROM employees
+ GROUP BY LENGTH(last_name)
+   HAVING COUNT(*) > 5 
+
+#按多个字段分组
+#案例：查询每个部门每个工种的员工的平均工资
+SELECT AVG(salary),department_id,job_id
+ FROM employees
+ GROUP BY department_id,job_id
+ 
+#添加排序
+#案例：查询每个部门每个工种的员工的平均工资，并且按平均工资的高低显示
+ SELECT AVG(salary) a,department_id,job_id
+   FROM employees
+  GROUP BY department_id,job_id
+  ORDER BY a DESC
+
+
+
+
+
+
+
+#查询各job_id的员工工资的最大值，最小值，平均值，总和，并按job_id升序
+SELECT MAX(salary),MIN(salary),AVG(salary),SUM(salary),job_id
+  FROM employees
+ GROUP BY job_id
+ ORDER BY job_id ASC
+
+#查询员工最高工资和最低工资的差距
+SELECT MAX(salary)-MIN(salary) DIEFERENCE
+  FROM employees
+  
+#查询各个管理者手下员工的最低工资，其中最低工资不能低于6000，没有管理者的员工不计算在内
+SELECT MIN(salary) m,manager_id
+  FROM employees
+ WHERE manager_id IS NOT NULL
+ GROUP BY manager_id
+  HAVING m >= 6000
+  
+#查询所有部门的编号，员工数量和工资平均值，并按平均工资降序
+SELECT COUNT(*),AVG(salary) a,department_id
+    FROM employees
+  GROUP BY department_id
+  ORDER BY a DESC
+
+#选择具有各个job_id的员工人数
+SELECT COUNT(*),job_id
+  FROM employees
+ GROUP BY job_id
+ 
+ 
+#进阶6：连接查询
+/*
+   含义：又称多表联查，当查询的字段来自于多个表时，就会用到连接查询
+   
+   笛卡尔乘积现象：表1 有m行，表2有n行，结果=m*n行
+   发生原因：没有有效的连接条件
+   如何避免：添加有效的连接条件
+   
+   分类：
+       按年代分类：
+       sql92标准 ：仅仅支持内连接
+       sql99标准（推荐）：支持内连接+外连接（左外+右外）+交叉连接
+       
+       按功能分类：
+            内连接：
+                 等值连接
+                 非等值连接
+                 自连接
+            外连接：
+                 左外连接
+                 右外连接
+                 全外连接
+            交叉连接
+*/
+
+SELECT * FROM beauty;
+
+SELECT * FROM boys;
+
+SELECT NAME,boyName FROM boys b,beauty g
+ WHERE g.boyfriend_id = b.id
+
+
+#1、sql92标准
+/*
+      1、等值连接
+     1、多表等值连接的结果为多表的交集部分
+     2、n表连接，至少需要n-1个连接条件
+     3、多表的顺序没有要求
+     4、一般需要起别名
+     5、可以搭配前面介绍的所有子句使用，比如排序、分组、筛选
+
+*/
+#1、等值连接
+#案例1：查询女神名和对应的男神名
+SELECT NAME,boyName FROM boys b,beauty g
+ WHERE g.boyfriend_id = b.id
+ 
+ 
+#案例2：查询员工名和对应的部门名
+SELECT last_name,department_name FROM employees e,departments d
+   WHERE e.department_id = d.department_id
+   
+#2、为表起别名
+/*
+     提高语句的简洁度
+     区分多个重名的字段
+   注意：如果为表起了别名，则查询的字段就不能使用原来的表名去限定
+*/
+#查询员工名、工种号、工种名
+SELECT last_name,e.job_id,job_title
+   FROM employees e,jobs j
+ WHERE e.job_id = j.job_id
+
+#4、
+#案例：查询有奖金的员工名、部门名
+SELECT last_name,department_name,commission_pct
+   FROM  employees e,departments d
+  WHERE e.department_id = d.department_id
+   AND e.commission_pct IS NOT NULL
+
+#案例2：查询城市名中第二个字符为o的部门名和城市名
+SELECT department_name,city
+    FROM departments d,locations l
+  WHERE d.location_id = l.location_id
+  AND SUBSTRING(l.city,2,1) = 'o' #或者 and city like '_o%'
+  
+#案例1：查询每个城市的部门个数
+SELECT COUNT(*),city,department_id
+  FROM departments d,locations l
+ WHERE d.location_id = l.location_id
+ GROUP BY city
+
+#案例2：查询有奖金的每个部门的部门名和部门领导编号和该部门的最低工资
+SELECT MIN(salary),department_name,d.manager_id,d.department_id
+   FROM employees e,departments d 
+  WHERE e.department_id = d.department_id
+  AND commission_pct IS NOT NULL
+  GROUP BY d.department_id
+
+#案例：查询每个工种的工种名和员工个数，并且按员工个数降序
+SELECT COUNT(*) c,job_title
+  FROM employees e,jobs j
+  WHERE e.job_id = j.job_id
+ GROUP BY job_title
+ ORDER BY c DESC
+ 
+ 
+#案例：查询员工名、部门名和所在的城市
+SELECT last_name,department_name,city
+  FROM employees e,departments d,locations l
+  WHERE e.department_id = d.department_id 
+  AND d.location_id = l.location_id
+  
+#2、非等值连接
+
+#案例 查询员工的工资和工资级别
+SELECT * FROM job_grades
+SELECT salary,grade_level
+   FROM employees e,job_grades j
+  WHERE e.salary BETWEEN j.lowest_sal AND j.highest_sal
+# where e.salary >= j.lowest_sal and e.salary <= j.highest_sal
+
+
+#3、自连接
+
+#案例：查询员工名和上级的名称
+SELECT e.last_name,e.employee_id,m.last_name,m.employee_id
+  FROM employees e,employees m
+ WHERE e.employee_id = m.manager_id
+
+
+
+
+
+
+#1、显示员工表的最大工资，工资平均值
+SELECT MAX(salary),AVG(salary) FROM employees
+
+#2、查询员工表的employee_id,job_id,last_name,按department_id降序，salary升序
+SELECT 
+  employee_id,job_id,
+  last_name
+ FROM employees
+ ORDER BY department_id DESC,salary ASC  
+ 
+#3、查询员工表的job_id中包含 a和e的，并且a在e的前面
+SELECT job_id
+    FROM employees
+    WHERE job_id LIKE '%a%e%'
+    
+#4、
+  SELECT name1,name2,score
+     FROM student s,grade g,result r
+   WHERE s.gradeId = g.id
+      AND s.id = r.studentNo
+
+
+#5、显示当前日期，以及去前后空格，截取子字符串的函数
+SELECT NOW();
+SELECT TRIM();
+ 
+   
+#1、显示所有员工的姓名，部门号和部门名称
+SELECT last_name,e.department_id,department_name
+    FROM employees e,departments d
+  WHERE e.`department_id` = d.`department_id`
+
+#2.查询90号部门员工的job_id和90号部门的location_id
+SELECT job_id,location_id,e.department_id
+  FROM employees e,departments d
+ WHERE e.`department_id` = d.`department_id`
+ AND e.`department_id` = 90
+ 
+#3.选择所有有奖金的员工的 last_name,department_name,location_id,city
+SELECT  
+  last_name,department_name,d.location_id,city
+ FROM employees e,departments d,locations l
+   WHERE e.`department_id` = d.`department_id`
+   AND d.`location_id` = l.location_id
+   AND e.`commission_pct` IS NOT NULL
+
+#4.选择city在Toronto工作的员工的last_name,job_id,department_id,department_name
+SELECT 
+    last_name,job_id,
+    e.department_id,department_name,city
+ FROM employees e,departments d,locations l
+    WHERE 
+     e.`department_id` = d.`department_id`
+     AND
+     d.`location_id` = l.location_id
+     AND
+     city = 'Toronto'
+     
+ #5.查询每个工种，每个部门的部门号，工种名和最低工资
+ SELECT
+      e.job_id,e.department_id,job_title,MIN(salary)
+    FROM 
+      employees e,departments d,jobs j
+    WHERE e.`department_id` = d.`department_id`
+    AND e.`job_id` = j.job_id
+    GROUP BY e.job_id,e.department_id 
+    
+ #6.查询每个国家下的部门个数大于2的国家编号
+ SELECT department_id,COUNT(*) c,country_id
+   FROM departments d,locations l
+  WHERE d.`location_id` = l.location_id
+  GROUP BY country_id
+  HAVING 
+      c > 2
+      
+#7.选择指定员工的姓名，员工号，以及他的管理者的姓名和员工号
+SELECT 
+    e.last_name employees,e.employee_id Emp,m.last_name manager,m.employee_id Mgr
+  FROM employees e,employees m
+  WHERE
+      m.`employee_id` = e.manager_id
+  AND
+      e.`last_name` = 'kochhar' 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+#sql99语法
+/*
+     语法：
+         select 查询列表
+         from 表1 别名 【连接类型】
+         join 表2 别名
+         on 连接条件
+           【where 筛选条件】
+           【group by 分组】
+           【having 筛选条件】
+           【order by 排序列表】
+           
+  分类：
+      内连接 ：inner
+      外链接
+            左外 : left 【outer】
+            右外 ：right 【outer】              
+            全外 ：full 【outer】
+       交叉连接 ：cross
+
+*/
+
+
+#1.内连接
+/*
+     等值连接
+     非等值连接
+     自连接
+     
+   特点：
+      1、添加排序、分组、筛选
+      2、inner可以省略
+      3、筛选条件放在where后面，连接条件放在on后面，提高分离性，便于阅读
+      4、inner join连接和sql92语法中的等值连接效果是一样的，都是查询多表的交集      
+*/
+
+#1、等值连接
+
+#1、查询员工名、部门名（调换位置）
+SELECT last_name,department_name
+    FROM employees e 
+    INNER JOIN departments d
+    ON e.`department_id` = d.`department_id`
+
+
+#2、查询名字中包含e的员工名和工种名
+SELECT last_name,job_title
+    FROM employees e
+    INNER JOIN jobs j
+    ON e.`job_id` = j.job_id
+    WHERE last_name LIKE '%e%'
+
+#3、查询部门个数>3的城市名和部门个数
+SELECT COUNT(*) c,city
+    FROM departments d
+    INNER JOIN locations l
+    ON d.`location_id` = l.location_id
+    GROUP BY city
+    HAVING c > 3 
+    
+#4、查询哪个部门的部门员工个数>3的部门名和员工个数，并按个数降序
+SELECT department_name,COUNT(*) 员工个数,e.`department_id`
+    FROM employees e
+    INNER JOIN departments d
+    ON e.`department_id` = d.`department_id`
+    GROUP BY e.department_id
+    HAVING 员工个数 > 3
+    ORDER BY 员工个数 DESC
+
+
+#5、查询员工名、部门名、工种名、并按部门名排序
+SELECT 
+     last_name,department_name,job_title
+     FROM employees e
+     INNER JOIN departments d ON e.`department_id` = d.`department_id`
+     INNER JOIN jobs j ON e.`job_id` = j.job_id
+     ORDER BY department_name DESC
+       
+       
+       
+#2.非等值连接
+
+#查询员工的工资级别
+   SELECT salary,grade_level
+      FROM employees e
+      INNER JOIN job_grades g
+      ON e.`salary` BETWEEN lowest_sal AND highest_sal
+       
+#查询工资级别的个数>20的个数，并且按工资级别降序
+   SELECT grade_level,COUNT(*) c,salary
+      FROM employees e
+      INNER JOIN job_grades g
+      ON e.`salary` BETWEEN lowest_sal AND highest_sal
+      GROUP BY grade_level
+      HAVING c > 20
+      ORDER BY grade_level DESC
+
+
+# 自连接
+
+#查询员工的名字、上级的名字
+SELECT e.`last_name` 员工,m.last_name 上级
+    FROM employees e
+    INNER JOIN employees m
+    ON e.`manager_id` = m.employee_id
+
+#查询姓名中包含字符k的员工名字、上级名字
+SELECT e.`last_name` 员工,m.last_name 上级
+    FROM employees e
+    INNER JOIN employees m
+    ON e.`manager_id` = m.employee_id
+    WHERE e.`last_name` LIKE '%k%'
+
+
+
+# 外连接
+/*
+  应用场景：用于查询一个表中有，另一个表没有的记录
+  特点：
+  1、外连接的查询结果为主表中的所有记录
+        如果从表中有和它匹配的，则显示匹配的值
+        如果从表中没有和它匹配的，则显示null
+        外连接查询结果=内连接结果+主表中有而从表中没有的记录
+  2、左外连接，left join左边的是主表
+     右外连接，right join右边的是主表
+  3、左外和右外交换两个表的顺序，可以实现同样的效果
+  4、全外连接 = 内连接的结果+表1中有但表2没有的+表2中有但表1没有的
+*/
+# 查询男朋友不在男神表的女神名
+#右外连接
+SELECT b.name
+    FROM boys bo
+    RIGHT OUTER JOIN beauty b
+    ON b.boyfriend_id = bo.id
+    WHERE bo.id IS NULL
+    
+#左外连接
+SELECT b.name
+    FROM beauty b
+    LEFT OUTER JOIN boys bo
+    ON b.boyfriend_id = bo.id
+    WHERE bo.id IS NULL
+
+SELECT * FROM beauty
+
+SELECT * FROM boys
+
+
 #案例1：查询哪个部门没有员工
 #左外
 SELECT d.department_id,e.`employee_id`
@@ -3564,3 +4864,35 @@ SELECT
              WHERE job_id = 'IT_PROG'      
       )  
         AND job_id <> 'IT_PORG'
+  
+  
+  
+
+
+
+# 行子查询  （多列多行）
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
